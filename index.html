@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Word</title>
+    <style id="word-style">
+      .word-span {
+        padding: 0 2px;
+        box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+        border-radius: 2px;
+      }
+
+      select-word :focus  {
+        background-color: green;
+      }
+
+      ul {
+        list-style-type: none; /* Remove bullets */
+        padding: 0; /* Remove padding */
+        margin: 0; /* Remove margins */
+        box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+        border-radius: 2px;
+      }
+    </style>
+    
+  </head>
+  <body>
+    <h1><code>selector de palabras usando el shadow dom</code></h1>
+    <p>Selecciona una forma <select-word data-option="Shape">______</select-word>
+    y luego otra forma <select-word data-option="Weigth">______</select-word></p>
+
+    <p>En otro orden de cosas, nos podemos subscribir a eventos en estos componentes
+      <select-word data-option="Color">______</select-word>
+    </p>
+
+    <ul id="event-log">
+    </ul>
+
+    <script src="main.js"></script>
+    <script type="text/javascript">
+      const words = document.querySelectorAll('[data-option]');
+      const shapes = { items: [{ id:1, name:'Sphere' }, { id:2, name: 'Square'}, 
+        { id:3, name: 'Romboid'}, { id:4, name: 'Triangle'}, { id:5, name: 'Rectangle'}], 
+        selectedItem: {id: 2}};
+      const weights = { items: [{ id:1, name:'25 kg' }, { id:2, name: '50 kg'}, 
+        { id:3, name: '85 kg'}, { id:4, name: '150 kg'}, { id:5, name: '200 kg'}], 
+        selectedItem: {id: 4}};
+      const color = { items: [{ id:1, name:'Green' }, { id:2, name: 'Blue'}, 
+        { id:3, name: 'Black'}, { id:4, name: 'Yellow'}, { id:5, name: 'Orange'}], 
+        selectedItem: {id: 4}};
+
+      const wordModels = {
+        Shape: shapes,
+        Weigth: weights,
+        Color: color
+      }
+      Array.from(words).forEach(word => word.dataModel = wordModels[word.getAttribute('data-option')]);
+
+      const ulLog = document.getElementById('event-log');
+      document.addEventListener('select-word-event', (e) => {
+        const li = document.createElement('li');
+        li.textContent = `🔥 ${new Date().toLocaleTimeString()} ✔️ Elemento seleccionado ${e.detail.selectedItem.id}`;
+        ulLog.appendChild(li);
+      });
+    </script>
+  </body>
+</html>
