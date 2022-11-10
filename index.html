@@ -23,6 +23,12 @@
         box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
         border-radius: 2px;
       }
+
+      .notes {
+        height: 50vh;
+        border-radius: 2px;
+        box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+      }
     </style>
     
   </head>
@@ -37,6 +43,9 @@
 
     <ul id="event-log">
     </ul>
+    <hr>
+
+    <span id="edit-notes" class="notes" contenteditable="true">texto externo http://www.google.co aaa</span>
 
     <script src="main.js"></script>
     <script type="text/javascript">
@@ -64,6 +73,52 @@
         li.textContent = `🔥 ${new Date().toLocaleTimeString()} ✔️ Elemento seleccionado ${e.detail.selectedItem.id}`;
         ulLog.appendChild(li);
       });
+
+      const httpRegex = /http:\/\/.*\.com/ig
+      const separators = [' ', ';', '\n'];
+
+      function searchPreviousStopPosition(text, startPosition) {
+        if(!text){
+          return -1;
+        }
+        let pos = startPosition;
+        while(pos >= 0) {
+          const currentChar = text.charAt(pos);
+          if(separators.findIndex(c => currentChar === c) > -1) {
+            break;
+          } 
+          pos--;
+        }
+
+        return pos === -1 ? 0 : pos;
+      }
+
+       document.getElementById('edit-notes').addEventListener('keyup', e => {
+          const range = document.getSelection().getRangeAt(0);
+          if(range.startContainer !== range.endContainer || range.startContainer.nodeType !== 3 /*Text*/) {
+            return;
+          }
+          //console.log("Start offset", range.startOffset);
+          const content = range.startContainer.textContent;
+          const stopIndex = searchPreviousStopPosition(content, range.startOffset - 1)
+          console.log("Stop index", stopIndex);
+
+          if(stopIndex === -1) {
+            return;
+          }
+          const posibleLink = content.substring(stopIndex, range.startOffset);
+          const match = posibleLink.match(httpRegex);
+          if(match && match.length == 1) {
+            console.log(content.substring(stopIndex, range.startOffset));
+            const length = range.startOffset - stopIndex;
+            const link = document.createElement('a');
+            link.href = posibleLink;
+            link.textContent = posibleLink;
+            const /** @type {Text} */newRightNode = /** @type {Text} */range.startContainer.splitText(stopIndex);
+            newRightNode.parentElement.insertBefore(link, newRightNode);
+            newRightNode.textContent = newRightNode.textContent.substring(length);
+          }
+        });
     </script>
   </body>
 </html>
